@@ -1,0 +1,3 @@
+[submodule "Ramstake_RS_756839/XKCP"]
+	path = Ramstake_RS_756839/XKCP
+	url = https://github.com/XKCP/XKCP.git
