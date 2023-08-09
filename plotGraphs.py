@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import os
 
 class demonstratorPlots:
     """
         Construct plots.
     """
-    def __init__(self, modulus_bitlength, hw_omega):
-        
+    def __init__(self, modulus_bitlength, hw_omega, plot_dir='results/'):
+
+        self.plot_dir = plot_dir
+
+        os.system('mkdir -p ' + plot_dir)
+        os.system('touch ' + plot_dir + '/PLACEHOLDER')
+
         self.modulus_bitlength = int(modulus_bitlength)
         self.hw_omega = int(hw_omega)
 
@@ -115,7 +121,10 @@ class demonstratorPlots:
         plt.semilogy(secrets, alpha=1, label=r'secrets ' + str(sid), color='black', linewidth=1.2, linestyle=':')
 
         self.pltFitting()
-        plt.savefig('estimates-' + str(sid) + '.png', bbox_inches='tight', dpi=500)
+        filename= self.plot_dir + 'estimates-' + str(sid) + '.png'
+        plt.savefig(filename, bbox_inches='tight', dpi=500)
+        print(f" (plotGraphs) pltEstimates wrote file {filename}")
+
         # vertical threshold line
         if show:
             plt.show()
@@ -160,7 +169,10 @@ class demonstratorPlots:
         plt.axhline(y=10**thres, color='r', linestyle='-', label=r'threshold T')
 
         self.pltFitting()
-        plt.savefig('peakThres-' + str(sid) + '.png', bbox_inches='tight', dpi=500)
+        filename = self.plot_dir + 'peakThres-' + str(sid) + '.png'
+        plt.savefig(filename, bbox_inches='tight', dpi=500)
+
+        print(f" (plotGraphs) pltEstimatesPeaksThres wrote file {filename}")
         # vertical threshold line
         if show:
             plt.show()
@@ -201,7 +213,10 @@ class demonstratorPlots:
                 plt.text(start + (end-start)/2, h_text, "$sample$", color='red')
 
         self.pltFitting()
-        plt.savefig(str(fname) + 'classification-' + str(sid) + '.png', bbox_inches='tight', dpi=500)
+        filename = self.plot_dir + str(fname) + 'classification-' + str(sid) + '.png'
+        plt.savefig(filename , bbox_inches='tight', dpi=500)
+
+        print(f" (plotGraphs) pltClassification wrote file {filename}")
         
         if show:
             plt.show()
@@ -272,6 +287,9 @@ class demonstratorPlots:
 
         # ADD RANGE WIDTH, EMPTY WIDTH
         self.pltFitting(bbox_anc=(0.9,1))
-        plt.savefig(str(fname) + 'partitioning-' + str(sid) + '.png',  bbox_inches='tight', dpi=500)
+        filename = self.plot_dir + str(fname) + 'partitioning-' + str(sid) + '.png'
+        plt.savefig(filename,  bbox_inches='tight', dpi=500)
+
+        print(f" (plotGraphs) pltPartitioning wrote file {filename}")
         if show:
             plt.show()

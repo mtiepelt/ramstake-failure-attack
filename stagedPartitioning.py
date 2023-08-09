@@ -30,6 +30,8 @@ class Partitioning:
 
         self.dummy = True
 
+        self.plot_dir = 'results'
+
     """
         ---------------------------------
         EXTRACTING PARTS
@@ -414,13 +416,13 @@ def checkSecrets(lst_sec_a, lst_sec_b, a, b, hw_omega):
             b_hw += 1
     
     if a_hw != b_hw or a_hw != hw_omega:
-        print "INPUT FILES INCONSISTENT"
-        print "Found HW a: " + str(a_hw) + ", HW b: " + str(b_hw) + ", but should be " + str(hw_omega)
+        print ("INPUT FILES INCONSISTENT")
+        print ("Found HW a: " + str(a_hw) + ", HW b: " + str(b_hw) + ", but should be " + str(hw_omega))
         exit(0)
 
     if a_rec != a or b_rec != b:
-        print "INPUT FILES INCONSISTENT"
-        print "Could not recreate secrets from files."
+        print ("INPUT FILES INCONSISTENT")
+        print ("Could not recreate secrets from files.")
         exit(0)
 
 def successProbP(B, e, ep):
@@ -480,11 +482,11 @@ if args.params:
     modulus_bitlength = args.params[0]
     hw_omega = args.params[1]
 
-print "--------------------------------------------"
-print " Demonstator for Failure Attack on Ramstake"
-print "--------------------------------------------"
-print " Parameters"
-print " n=" + str(modulus_bitlength) + ", w=" + str(hw_omega)
+print ("--------------------------------------------")
+print (" Demonstator for Failure Attack on Ramstake")
+print ("--------------------------------------------")
+print (" Parameters")
+print (" n=" + str(modulus_bitlength) + ", w=" + str(hw_omega))
 
 """
     Read estimates
@@ -502,7 +504,7 @@ if args.fn_sec:
     lst_sec_a = list(np.load(args.fn_sec[0]))
     lst_sec_b = list(np.load(args.fn_sec[1]))
 else:
-    print "No secrets provided."
+    print ("No secrets provided.")
 
 """
     Read a,b,G from failures file
@@ -510,12 +512,12 @@ else:
 if args.fn_fails and args.fn_sec:
     a, b, G = readFailures(args.fn_fails)
     checkSecrets(lst_sec_a, lst_sec_b, a, b, hw_omega);
-print "--------------------------------------------"
+print ("--------------------------------------------")
 
 
 def main():
     
-    print "Partitioning..."
+    print ("Partitioning...")
     """
         Partitioning
     """
@@ -536,10 +538,10 @@ def main():
         num_bits_inGood, num_good_affected = demoPartPCheck.getCoveredBits(bit_range_good, lst_sec, showFalse = False, id_range = sid)
         num_bits_sampleSpace = demoPartPCheck.getNumSampleSpace(bit_range)
         
-        print offs + "# secret positions missing: " + str(hw_omega - num_bits_inRange)
-        print offs + "|I_correct|: " + str(len(bit_range_good)) + ", # used intervals: " + str(num_good_affected)
-        print offs + "|I_sample|: " + str(len(bit_range_bad))
-        print offs + "# secret positions in I_correct: " + str(num_bits_inGood) + " of " + str(hw_omega)
+        print (offs + "# secret positions missing: " + str(hw_omega - num_bits_inRange))
+        print (offs + "|I_correct|: " + str(len(bit_range_good)) + ", # used intervals: " + str(num_good_affected))
+        print (offs + "|I_sample|: " + str(len(bit_range_bad)))
+        print (offs + "# secret positions in I_correct: " + str(num_bits_inGood) + " of " + str(hw_omega))
 
     offs = "   "
     showNonidentifiedPositions = args.missing
@@ -555,18 +557,18 @@ def main():
 
     if args.fn_sec:
         if num_secretBitsMissing == 0:
-            print offs + "SUCCESS"
-            print offs + "Estimation allows successful attack!"
+            print (offs + "SUCCESS")
+            print (offs + "Estimation allows successful attack!")
         else:
-            print offs + "Estimation was not able to identify " + str(num_secretBitsMissing) + " bit positions of the secret!"
+            print (offs + "Estimation was not able to identify " + str(num_secretBitsMissing) + " bit positions of the secret!")
 
-        print "--------------------------------------------"
-        print offs + "|I_correct|: " + str(len(good_a) + len(good_b))
-        print offs + "|I_sample|: " + str(len(bad_a) + len(bad_b))
-        print offs + "# secret positions in I_correct: " + str(num_bits_inGood_a + num_bits_inGood_b)
-        print offs + "# secret positions missing: " + str(2 * hw_omega - (num_bits_inGood_a + num_bits_inGood_b))
+        print ("--------------------------------------------")
+        print (offs + "|I_correct|: " + str(len(good_a) + len(good_b)))
+        print (offs + "|I_sample|: " + str(len(bad_a) + len(bad_b)))
+        print (offs + "# secret positions in I_correct: " + str(num_bits_inGood_a + num_bits_inGood_b))
+        print (offs + "# secret positions missing: " + str(2 * hw_omega - (num_bits_inGood_a + num_bits_inGood_b)))
         #print offs + "Expected number of quantum steps: exp(" + str((2 * hw_omega - (num_bits_inGood_a + num_bits_inGood_b)) / 2) + ")"
-        print "--------------------------------------------"
+        print ("--------------------------------------------")
         #print "  A"
         #formatedOutput(good_a, bad_a, bit_range_a, lst_sec_a, sid="a", showFalse=num_secretBitsMissing)
         #print "==="
@@ -577,24 +579,24 @@ def main():
     """
         Average ratio of empty space of bad parts
     """
-    print "Partitioning Results "
+    print ("Partitioning Results ")
 
     pr_success_a, avg_w_a, avg_e_a, avg_ep_a = successProbR(good_a, bad_a)
     pr_success_b, avg_w_b, avg_e_b, avg_ep_b = successProbR(good_b, bad_b)
 
-    print offs + "Avg size of B: " + str((avg_w_a + avg_w_b)/2)
-    print offs + "Avg size of e: " + str((avg_e_a + avg_e_b)/2)
-    print offs + "Avg size of e_p: " + str((avg_ep_a + avg_ep_b)/2)
-    print offs + "Avg Pr[success]: " + str((pr_success_a + pr_success_b)/2)
+    print (offs + "Avg size of B: " + str((avg_w_a + avg_w_b)/2))
+    print (offs + "Avg size of e: " + str((avg_e_a + avg_e_b)/2))
+    print (offs + "Avg size of e_p: " + str((avg_ep_a + avg_ep_b)/2))
+    print (offs + "Avg Pr[success]: " + str((pr_success_a + pr_success_b)/2))
 
     all_missing_bits = (2 * hw_omega - (num_bits_inGood_a + num_bits_inGood_b))
     all_pr_success = (pr_success_a + pr_success_b)/2.0
 
     q_steps = math.log(1/all_pr_success**all_missing_bits, 2)
-    print offs + "E[# quantum steps] (exp): " + str(q_steps/2)
-    print "--------------------------------------------"
-    exit(0)
-    print "Plotting graphs..."
+    print (offs + "E[# quantum steps] (exp): " + str(q_steps/2))
+    print ("--------------------------------------------")
+
+    print ("Plotting graphs...")
     demoGraph = pG.demonstratorPlots(modulus_bitlength, hw_omega)
 
     # Figure from paper
@@ -604,7 +606,7 @@ def main():
     demoGraph.xstart = 96000
     demoGraph.xend = 164000
     demoGraph.pltEstimates(lst_est_a, lst_sec_a, "a", show=False)
-    #demoGraph.pltEstimates(lst_est_b, lst_sec_b, "b", show=False)
+    demoGraph.pltEstimates(lst_est_b, lst_sec_b, "b", show=False)
 
     demoGraph.xstart = 96000
     demoGraph.xend = 200000
@@ -612,9 +614,9 @@ def main():
     demoGraph.ystart = 1.e-70
     demoGraph.yend = 1.e106
     demoGraph.pltPartitioning(lst_est_a, lst_sec_a, good_a, bad_a, "a", "", show=False, showtxt=False)
-    #demoGraph.pltPartitioning(lst_est_b, lst_sec_b, good_b, bad_b, "b", "", show=False, showtxt=False)
+    demoGraph.pltPartitioning(lst_est_b, lst_sec_b, good_b, bad_b, "b", "", show=False, showtxt=False)
 
-    print "Done."
+    print ("Done.")
 
 if __name__ == "__main__":
     main()

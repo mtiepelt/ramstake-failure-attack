@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt 
 from cycler import cycler
+import os
 
 fontsize = 15
 font = {
@@ -10,7 +11,11 @@ font = {
 class demonstratorPlots:
 
     def __init__(self):
-        
+
+        self.plot_dir = 'results/'
+        os.system('mkdir -p ' + self.plot_dir)
+        os.system('touch ' + self.plot_dir + '/PLACEHOLDER')
+
         # legend
         self.fontsize = 15
 
@@ -22,8 +27,8 @@ class demonstratorPlots:
     def pltSetup(self):
         plt.clf()
 
-        plt.xscale('log', basex=2)
-        plt.yscale('log', basey=2)
+        plt.xscale('log', base=2)
+        plt.yscale('log', base=2)
 
         plt.xlabel(u'decryption querries', fontdict=self.font)
 
@@ -48,7 +53,7 @@ class demonstratorPlots:
         linestyle_cnt = 0
 
         if len(seeds) > len(linestyles):
-            print "More plots than different linestyles!"
+            print ("More plots than different linestyles!")
 
         for k,v in seeds.items():
             plt.plot(decryption_failures, v, alpha=1, label=r'seed ' + str(k), linewidth=1.2, linestyle=linestyles[linestyle_cnt % len(linestyles)])
@@ -56,7 +61,9 @@ class demonstratorPlots:
             linestyle_cnt += 1
 
         self.pltFitting()
-        plt.savefig('results.png', bbox_inches='tight', dpi=500)
+        filename = self.plot_dir + 'results.png'
+        plt.savefig(filename, bbox_inches='tight', dpi=500)
+        print(f" (plotResults) pltResults wrote file {filename}")
         plt.show()
 
 

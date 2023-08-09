@@ -27,7 +27,7 @@ class demonstratorPartitionChecker:
                     break
 
             if showFalse and not foundPart:
-                print "Estimates -- Secret position in " + str(id_range) + " not found: " + str(j)
+                print ("Estimates -- Secret position in " + str(id_range) + " not found: " + str(j))
 
         return int(num_found_bits), len(dict_bitRange_used)
 
