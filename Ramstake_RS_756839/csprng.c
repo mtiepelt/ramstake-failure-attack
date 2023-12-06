@@ -1,5 +1,5 @@
 #include "csprng.h"
-#include <libkeccak.a.headers/KeccakHash.h>
+#include <libXKCP.a.headers/KeccakHash.h>
 #include <stdio.h>
 
 /*

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <libkeccak.a.headers/SimpleFIPS202.h>
+#include <libXKCP.a.headers/SimpleFIPS202.h>
 #include "ramstake.h"
 #include "codec_rs.h"
 
