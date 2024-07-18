@@ -5,33 +5,16 @@ This code package contains implementations in python to demonstrate an attack on
 ## Dependencies
 
 * eXtended Keccak Code Package [XKCP](https://github.com/XKCP/XKCP)
-* [Ramstake] (https://github.com/0x64616E69656C/ramstake), **single line in ramstake.h was changed, as in local copy**
-* (non-standard) Python libraries
-  * peakdetect
-  * pathos
-  * tqdm
+  * Tested with commit `3c43b02f7e120bdb942810fd3a29ba65c79ce84f` from Nov 16 2023  
+* [Ramstake] (https://github.com/0x64616E69656C/ramstake)
+  * Uses local copy, **single line in ramstake.h was changed**
+* Python 3.10.12, with libraries 
+  * [peakdetect](https://github.com/avhn/peakdetect
+) Version 1.2 
+  * [pathos](https://github.com/uqfoundation/pathos) Version 0.3.2 
+  * [tqdm](https://tqdm.github.io) Version 4.65.0 
 
 ## Files
-
-### Read Me
-
-|-- README -- this file
-
-###
-
-samples/
-
-|-- estimates_params.npy
-
-|-- SEED/estimate-a.npy
-
-|-- SEED/estimate-b.npy
-
-|-- SEED/secret-a.npy
-
-|-- SEED/secret-b.npy
-
-Contains the estimated parameters from the precomputation phase and precomputed estimates from decryption failures generated from the respective seeds.
 
 ### Run
 |-- run.Unix.sh -- main file to be executed.
@@ -48,6 +31,23 @@ Seeds for pseudorandom generation of parameters may be adjusted arbitrarily:
 > seedsamples="c0ffee"
 
 > seedfailures="d118b7"
+
+
+### Samples 
+
+samples/
+
+|-- estimates_params.npy
+
+|-- SEED/estimate-a.npy
+
+|-- SEED/estimate-b.npy
+
+|-- SEED/secret-a.npy
+
+|-- SEED/secret-b.npy
+
+Contains the estimated parameters from the precomputation phase and precomputed estimates from decryption failures generated from the respective seeds.
 
 ### Other Files
 
