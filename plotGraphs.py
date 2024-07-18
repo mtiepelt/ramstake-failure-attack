@@ -150,7 +150,7 @@ class demonstratorPlots:
         self.pltFitting()
         plt.show()
 
-    def pltEstimatesPeaksThres(self, estimates, peaks, thres, sid, show=True):
+    def pltEstimatesPeaksThres(self, estimates, peaks, thres, sid, show=True, stage='peakThres'):
         """
             Plots estimate and a threshold line.
             @input: estimates   estimates
@@ -169,7 +169,7 @@ class demonstratorPlots:
         plt.axhline(y=10**thres, color='r', linestyle='-', label=r'threshold T')
 
         self.pltFitting()
-        filename = self.plot_dir + 'peakThres-' + str(sid) + '.png'
+        filename = self.plot_dir + str(stage) + '-' + str(sid) + '.png'
         plt.savefig(filename, bbox_inches='tight', dpi=500)
 
         print(f" (plotGraphs) pltEstimatesPeaksThres wrote file {filename}")
@@ -269,7 +269,7 @@ class demonstratorPlots:
             r_sample = end - start
             height = max(estimates[start], estimates[end])
 
-            if not showtxt:
+            if showtxt:
                 plt.text(start, height, "p" + "$_{" + str(r) + ",s}$")
                 plt.text(end, height, "p" + "$_{" + str(r) + ",e}$")
 

@@ -32,6 +32,13 @@ class Partitioning:
 
         self.plot_dir = 'results'
 
+
+        self.xstart = 96000
+        self.xend = 200000
+
+        self.ystart = 1.e-70
+        self.yend = 1.e93
+
     """
         ---------------------------------
         EXTRACTING PARTS
@@ -87,9 +94,6 @@ class Partitioning:
         lst_peaks.sort()
         bit_range = []
         
-        """
-
-        """
         i = 0
         while i < len(lst_peaks):
 
@@ -138,29 +142,28 @@ class Partitioning:
 
         return new_bit_range
 
+    def getAvgHeight(self, estimates):
+        if len(estimates) == 0:
+            return 0
+
+        avg = 0
+        for e in estimates:
+            if e > 0:
+                avg += math.log(e, 10)
+            else:
+                avg += 0
+        return int(avg/len(estimates))
+
     def stageI_findInitialRange(self, estimates):
         """
             Uses SciPy to identify peaks over a threshold and merges peaks into bit ranges.
             @input: estimates as mapping from bit position to Pr[b_i=1]/Pr[b_i=0]
             @output: [START, END, e]
-        """
-
-        def getAvgHeight(estimates):
-            if len(estimates) == 0:
-                return 0
-
-            avg = 0
-            for e in estimates:
-                if e > 0:
-                    avg += math.log(e, 10)
-                else:
-                    avg += 0
-            return int(avg/len(estimates))
-
+        """        
         p_wlen = 512    # area evaluated for prominence
         p_distance = 50 # distance to next peak, bigger values make result imprecise
 
-        heuThres = getAvgHeight(estimates)
+        heuThres = self.getAvgHeight(estimates)
 
         findPeaksLookAhead = modulus_bitlength / (10 * self.hw_omega)
 
@@ -170,12 +173,11 @@ class Partitioning:
         # build graph
         if self.dummy:
             demoGraph = pG.demonstratorPlots(self.modulus_bitlength, self.hw_omega)
-            demoGraph.xstart = 96000
-            demoGraph.xend = 164000
-            demoGraph.ystart = 1.e-70
-            demoGraph.yend = 1.e93
+            demoGraph.xstart = self.xstart
+            demoGraph.xend = self.xend
+            demoGraph.ystart = self.ystart
+            demoGraph.yend = self.yend
             demoGraph.pltEstimatesPeaksThres(estimates, peaks, heuThres, "a", show=False)
-            self.dummy = False
 
         return bit_range
 
@@ -211,7 +213,7 @@ class Partitioning:
 
             """
                 Slightly tighten relative to height, increase threshold by 1/32 seems to work well.
-                Height threshold is calculated seperately for least and most significant bit,
+                Height threshold is calculated separately for least and most significant bit,
                 relative height = local max / local min
             """
 
@@ -230,7 +232,6 @@ class Partitioning:
 
                 # same format peakdetect
                 local_max.append([i, h_m])
-            
 
             # Heuristic value. Smaller values give better results
             lsb_ratio = 32
@@ -268,12 +269,37 @@ class Partitioning:
             # define new bit range
             bit_range_tight = [int(pos_newStart), int(pos_newEnd), empty + (end - pos_newEnd)]
             tight_bitRange.append(bit_range_tight)
+
+        # print ("DEBUG Plotting estimates...")
+        # demoGraph = pG.demonstratorPlots(modulus_bitlength, hw_omega)
+        # demoGraph.xstart = self.xstart
+        # demoGraph.xend = self.xend
+        # demoGraph.ystart = self.ystart
+        # demoGraph.yend = self.yend
+        # demoGraph.pltEstimates(lst_est_a, [], "a-DEBUG-2", show=False)
+        # print("DEBUG END")
         
         # bit_range should be naturally sorted
         tight_bitRange = self.recomputeEmptySpace(tight_bitRange)
+
+        # build graph
+        heuThres = self.getAvgHeight(estimates)
+        peaks = []
+        for interv in tight_bitRange:
+            for i in range(interv[0], interv[1], 1):
+                peaks.append(i)
+        #
+        if self.dummy:
+            demoGraph = pG.demonstratorPlots(self.modulus_bitlength, self.hw_omega)
+            demoGraph.xstart = self.xstart
+            demoGraph.xend = self.xend
+            demoGraph.ystart = self.ystart
+            demoGraph.yend = self.yend
+            demoGraph.pltEstimatesPeaksThres(estimates, peaks, heuThres, "a", show=False, stage='bitRange')
+
         return tight_bitRange
 
-    def stageIII_advantageOfEmptySpace(self, bit_range):
+    def stageIII_advantageOfEmptySpace(self, estimates, bit_range):
         """
             Merge bad parts with (succeeding) good part, if trailing empty space is large enough to form a new good part.
             @input: [START, END, e]
@@ -284,7 +310,6 @@ class Partitioning:
             Check for bit ranges that can be merged.
             Remember index of first and last bit range, and number of parts that are enclosed.
         """
-
         # [index first, index last, number of merged bad]
         lst_merging = []
 
@@ -299,15 +324,14 @@ class Partitioning:
 
             num_merged_bad_parts = 1
             num_merged_parts = 1
+
             # iterate over all other bit ranges
             for j in range(len(bit_range) - 1):
                 last = (i + j) % len(bit_range)
 
                 # good part (chance of large empty space)
                 if bit_range[last][1] - bit_range[last][0] <= bit_range[last][2]:
-
                     # good part has large empty space
-
                     if last > i:
                         size_merged = bit_range[last][1] - start
                     else:
@@ -365,18 +389,26 @@ class Partitioning:
             r_new = [bit_range[i_start][0], bit_range[i_end][1], bit_range[i_end][2]]
             bit_range_new.append(r_new)
 
+        # build graph
+        heuThres = self.getAvgHeight(estimates)
+        peaks = []
+        for interv in bit_range_new:
+            for i in range(interv[0], interv[1], 1):
+                peaks.append(i)
+
         return bit_range_new
 
     def getPartitioning(self, lst_est_a, lst_est_b):
+        self.dummy = True
         bit_range_a = self.stageI_findInitialRange(lst_est_a)
         tight_bit_range_a = self.stageII_getTighterRanges(lst_est_a, bit_range_a)
-        merged_bit_range_a = self.stageIII_advantageOfEmptySpace(tight_bit_range_a)
-
+        merged_bit_range_a = self.stageIII_advantageOfEmptySpace(lst_est_a, tight_bit_range_a)
+        self.dummy = False 
         # -----------------------
 
         bit_range_b = self.stageI_findInitialRange(lst_est_b)
         tight_bit_range_b = self.stageII_getTighterRanges(lst_est_b, bit_range_b)
-        merged_bit_range_b = self.stageIII_advantageOfEmptySpace(tight_bit_range_b)
+        merged_bit_range_b = self.stageIII_advantageOfEmptySpace(lst_est_b, tight_bit_range_b)
 
         return merged_bit_range_a, merged_bit_range_b
 
@@ -516,12 +548,19 @@ print ("--------------------------------------------")
 
 
 def main():
-    
     print ("Partitioning...")
     """
         Partitioning
     """
     Part = Partitioning(modulus_bitlength, hw_omega)
+
+    print ("Plotting estimates...")
+    demoGraph = pG.demonstratorPlots(modulus_bitlength, hw_omega)
+    demoGraph.xstart = Part.xstart
+    demoGraph.xend = Part.xend
+    demoGraph.ystart = Part.ystart
+    demoGraph.yend = Part.yend
+    demoGraph.pltEstimates(lst_est_a, lst_sec_a, "a", show=False)
     
     # [START, END, ENMPTY DISTANCE]
     bit_range_a, bit_range_b = Part.getPartitioning(lst_est_a, lst_est_b)
@@ -596,23 +635,13 @@ def main():
     print (offs + "E[# quantum steps] (exp): " + str(q_steps/2))
     print ("--------------------------------------------")
 
-    print ("Plotting graphs...")
+    print ("Plotting partition...")
     demoGraph = pG.demonstratorPlots(modulus_bitlength, hw_omega)
-
     # Figure from paper
-    demoGraph.ystart = 1.e-70
-    demoGraph.yend = 1.e93
-
-    demoGraph.xstart = 96000
-    demoGraph.xend = 164000
-    demoGraph.pltEstimates(lst_est_a, lst_sec_a, "a", show=False)
-    demoGraph.pltEstimates(lst_est_b, lst_sec_b, "b", show=False)
-
-    demoGraph.xstart = 96000
-    demoGraph.xend = 200000
-
-    demoGraph.ystart = 1.e-70
-    demoGraph.yend = 1.e106
+    demoGraph.xstart = Part.xstart
+    demoGraph.xend = Part.xend
+    demoGraph.ystart = Part.ystart
+    demoGraph.yend = Part.yend
     demoGraph.pltPartitioning(lst_est_a, lst_sec_a, good_a, bad_a, "a", "", show=False, showtxt=False)
     demoGraph.pltPartitioning(lst_est_b, lst_sec_b, good_b, bad_b, "b", "", show=False, showtxt=False)
 
